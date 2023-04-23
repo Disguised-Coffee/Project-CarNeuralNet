@@ -165,8 +165,7 @@ def run_neural_net(inputs: List, outputs: List, hidden_nodes: int):
     nn = NeuralNet(len(inputs), hidden_nodes, len(outputs))
     nn.train(td) # , iters=100_000, print_interval=1000, learning_rate=0.1)
 
-    for i in nn.test_with_expected(td):
-        print(f"desired: {i[1]}, actual: {i[2]}")
+    #Do Test case stuff here c;
 
 if __name__ == "__main__":
     with open(DATA_FILE, "r") as f:
