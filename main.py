@@ -15,7 +15,7 @@ def check_for_letters(string):
     """
     Returns false if there is no numbers in the string.
     """
-    print(string)
+    # print(string)
     for i in range(len(string)):
         if string[i].isalpha():
             return True
@@ -36,11 +36,11 @@ def reformat_data(data: List[Tuple[List[float], List[float]]]) -> Tuple[List[flo
             possible_values = []
             for row in range(len(data)):
                 if data[row][0][i] != "?" and data[row][0][i] not in possible_values:
-                    print("appending ",data[row][0][i])
+                    # print("appending ",data[row][0][i])
                     possible_values.append(data[row][0][i])
             
             #Stored values for later c;
-            CONVERSION_DICTONARY_INPUTS.append(possible_values)
+            CONVERSION_DICTONARY_INPUTS.append((i,possible_values))
             # Format values in which new row values are index numbers
             for row in range(len(data)):
                 data[row][0][i] = possible_values.index(data[row][0][i]) if data[row][0][i] != "?" else possible_values.index(random.choice(possible_values)) # look at placement.
@@ -77,9 +77,9 @@ def reformat_data(data: List[Tuple[List[float], List[float]]]) -> Tuple[List[flo
                     # print(compare_list)
                     new_data[row][outcome][col] = statistics.median(compare_list)
                 else:
-                    if str(new_data[row][outcome][col]) in ["two","four"]:
-                        print("ROw",row,"Col",col)
-                        print(new_data[row][outcome][col])
+                    # if str(new_data[row][outcome][col]) in ["two","four"]:
+                        # print("ROw",row,"Col",col)
+                        # print(new_data[row][outcome][col])
                     new_data[row][outcome][col] = float(new_data[row][outcome][col]) 
     return new_data
 
@@ -95,7 +95,7 @@ def parse_line(line: str, inputs: List[int], outputs: List[int]) -> Tuple[List[f
         tuple of input list and output list
     """
     tokens = line.split(",")
-    print(tokens)
+    # print(tokens)
     
     
     # Make inputs based on parameters
@@ -171,10 +171,11 @@ if __name__ == "__main__":
     with open(DATA_FILE, "r") as f:
         training_data = reformat_data([parse_line(line,[0,1,2,3,4,5],[25]) for line in f.readlines() if len(line) > 4])
 
-    print(training_data)
+    # print(training_data)
     print(CONVERSION_DICTONARY_INPUTS)
     td = normalize(training_data)
-    print(td)
+    # print(td)
+    exit()
 
     nn = NeuralNet(6, 3, 1)
     nn.train(td) # , iters=100_000, print_interval=1000, learning_rate=0.1)
