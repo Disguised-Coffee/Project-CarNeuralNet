@@ -27,16 +27,22 @@ def reformat_data(data: List[Tuple[List[float], List[float]]]) -> Tuple[List[flo
 
     Later on, track columns in terms of names to convert the strings to names
     """
-    # Format inputs
-    # Find value in which strings exist
+    #Step 1 (for both inputs and Outputs)
+    # Find value in which strings exist and replace it with a actual number value
+    # Record the possible string values in the column in which strings exist
+    # Give the data index based on the list with the recorded string values  
+  
+    # Format inputs into all numerical values.
     for i in range(len(data[0][0])):
-        #Check if the piece of data is a string. (\n values are also numbers too)
+        # Check if the piece of data is a string. (\n values are also numbers too)
         if "?" not in data[0][0][i] and ("\n" not in data[0][0][i] or check_for_letters(data[0][0][i])):
             # check each row and find possible values
             possible_values = []
             for row in range(len(data)):
+                # Ignore question marks when making the list
                 if data[row][0][i] != "?" and data[row][0][i] not in possible_values:
                     # print("appending ",data[row][0][i])
+                    # Give string a numerical value (its index in the list).
                     possible_values.append(data[row][0][i])
             
             #Stored values for later c;
@@ -44,6 +50,9 @@ def reformat_data(data: List[Tuple[List[float], List[float]]]) -> Tuple[List[flo
             # Format values in which new row values are index numbers
             for row in range(len(data)):
                 data[row][0][i] = possible_values.index(data[row][0][i]) if data[row][0][i] != "?" else possible_values.index(random.choice(possible_values)) # look at placement.
+        # # check if the 
+        # if data[0][0][i].isnumeric() or data[0][0][i].isdecimal():
+          
     
     # Format outputs
     for i in range(len(data[0][1])):
@@ -56,7 +65,7 @@ def reformat_data(data: List[Tuple[List[float], List[float]]]) -> Tuple[List[flo
                     possible_values.append(data[row][1][i])
             
             #Stored values for later c;
-            CONVERSION_DICTONARY_INPUTS.append(possible_values)
+            CONVERSION_DICTONARY_OUTPUTS.append((i,possible_values))
 
             # Format values in which new row values are index numbers
             for row in range(len(data)):
@@ -64,12 +73,14 @@ def reformat_data(data: List[Tuple[List[float], List[float]]]) -> Tuple[List[flo
     
     new_data = copy.deepcopy(data)
 
+    #Stepus 2 
     # Convert everything to a float
     for row in range(len(data)):
         for outcome in range(len(new_data[row])):
             for col in range(len(new_data[row][outcome])):
                 # print(data[row][outcome][col])
                 # Handle "?"
+                # If there happens to be a questionmark in the data, just use the median.
                 if str(new_data[row][outcome][col]) in "?\n":
                     compare_list = []
                     for x in range(len(new_data)):
@@ -174,8 +185,8 @@ if __name__ == "__main__":
     # print(training_data)
     print(CONVERSION_DICTONARY_INPUTS)
     td = normalize(training_data)
-    # print(td)
-    exit()
+    print(td)
+    # exit()
 
     nn = NeuralNet(6, 3, 1)
     nn.train(td) # , iters=100_000, print_interval=1000, learning_rate=0.1)
