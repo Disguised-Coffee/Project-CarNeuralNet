@@ -11,15 +11,15 @@ CONVERSION_DICTONARY_INPUTS = []
 
 CONVERSION_DICTONARY_OUTPUTS = []
 
-def check_for_letters(string):
+NUMERICAL_VALUE_STRING = "Dwis swis wa wumbwer"
+
+def hyphen_check(string):
     """
-    Returns false if there is no numbers in the string.
+    Returns true if it is part of a word (letter next to hyphen).
     """
     # print(string)
-    for i in range(len(string)):
-        if string[i].isalpha():
-            return True
-    return False
+    hypen_location = string.find("-")
+    return string[hypen_location+1: hypen_location + 2].isalpha()
 
 def reformat_data(data: List[Tuple[List[float], List[float]]]) -> Tuple[List[float], List[float]]:
     """
@@ -34,7 +34,7 @@ def reformat_data(data: List[Tuple[List[float], List[float]]]) -> Tuple[List[flo
     # Record the possible string values in the column in which strings exist
     # Give the data index based on the list with the recorded string values  
 
-    # Check 2 Synopsis
+    # Check 2 Synopsis []
     # Record the least and greatest values in the column in which strings exist 
     # Give the data index based on the list with the recorded string values  
   
@@ -43,7 +43,8 @@ def reformat_data(data: List[Tuple[List[float], List[float]]]) -> Tuple[List[flo
         for col in range(len(data[0][outcome])): # for each column
             # Check 1
             # Check if the piece of data is a string. (\n values are also numbers too)
-            if "?" not in data[0][outcome][col] and ("\n" not in data[0][outcome][col] or check_for_letters(data[0][outcome][col])):
+            # 1) no question mark 2) is not a number.
+            if "?" not in data[0][outcome][col] and (data[0][outcome][col].isalpha() or hyphen_check(data[0][outcome][col])):
                 # check each row and find possible values
                 possible_values = []
                 for this_row in range(len(data)):
@@ -89,7 +90,7 @@ def reformat_data(data: List[Tuple[List[float], List[float]]]) -> Tuple[List[flo
                         #finally
                         data[row][outcome][col] = float(data[row][outcome][col]) 
                         
-                        print(type(data[row][outcome][col]))
+                        # print(type(data[row][outcome][col]))
                         # For tracking purposes for numbers
                         if data[row][outcome][col] < float(least):
                             least = data[row][outcome][col]
@@ -98,9 +99,9 @@ def reformat_data(data: List[Tuple[List[float], List[float]]]) -> Tuple[List[flo
                 
                 # Conversion purposes c;
                 if outcome == 0:
-                    CONVERSION_DICTONARY_INPUTS.append((col,["N", least, greatest]))
+                    CONVERSION_DICTONARY_INPUTS.append((col,[NUMERICAL_VALUE_STRING, least, greatest]))
                 else:
-                    CONVERSION_DICTONARY_OUTPUTS.append((col,["N", least, greatest]))
+                    CONVERSION_DICTONARY_OUTPUTS.append((col,[NUMERICAL_VALUE_STRING, least, greatest]))
     return data
 
 def parse_line(line: str, inputs: List[int], outputs: List[int]) -> Tuple[List[float], List[float]]:
@@ -144,8 +145,10 @@ def normalize(data: List[Tuple[List[float], List[float]]]):
         leasts = len(data[0][outcome]) * [100.0]
         mosts = len(data[0][outcome]) * [0.0]
 
+        # For each row
         for i in range(len(data)):
-            for j in range(len(data[i][0])):
+            # for each column
+            for j in range(len(data[i][outcome])):
                 if data[i][outcome][j] < leasts[j]:
                     leasts[j] = data[i][outcome][j]
                 if data[i][outcome][j] > mosts[j]:
@@ -156,6 +159,17 @@ def normalize(data: List[Tuple[List[float], List[float]]]):
                 data[i][outcome][j] = (data[i][outcome][j] - leasts[j]) / (mosts[j] - leasts[j])
     
     return data
+
+#Denormalize C;
+def denormalize(data: List[Tuple[List[float], List[float]]]):
+  """Thought normalizing was bad?
+  It actually isn't
+
+  In normalize, we just subtract the least value and then divide it by the range
+
+  For this, we just do the reverse!
+  """
+  pass
 
 def run_neural_net(inputs: List, outputs: List, hidden_nodes: int):
     with open(DATA_FILE, "r") as f:
@@ -173,7 +187,7 @@ def run_neural_net(inputs: List, outputs: List, hidden_nodes: int):
 
 if __name__ == "__main__":
     with open(DATA_FILE, "r") as f:
-        training_data = reformat_data([parse_line(line,[0,1,2,3,4,5],[25]) for line in f.readlines() if len(line) > 4])
+        training_data = reformat_data([parse_line(line,[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],[25]) for line in f.readlines() if len(line) > 4])
 
     # print(training_data)
     print(CONVERSION_DICTONARY_INPUTS)
