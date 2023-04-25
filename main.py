@@ -23,76 +23,85 @@ def check_for_letters(string):
 
 def reformat_data(data: List[Tuple[List[float], List[float]]]) -> Tuple[List[float], List[float]]:
     """
-    Process each line, first looking for strings to put as numbers and then converting every value to a float
+    Return data with floats.
 
-    Later on, track columns in terms of names to convert the strings to names
+    Process each line, first looking for strings to put as numbers and then converting every value to a float. Tracks all values in constants CONVERSION_DICTONARY_INPUTS and CONVERSION_DICTONARY_OUTPUTS.
+
+    Fairly useful c;
     """
-    #Step 1 (for both inputs and Outputs)
+    # Check 1 Synopsis
     # Find value in which strings exist and replace it with a actual number value
     # Record the possible string values in the column in which strings exist
     # Give the data index based on the list with the recorded string values  
+
+    # Check 2 Synopsis
+    # Record the least and greatest values in the column in which strings exist 
+    # Give the data index based on the list with the recorded string values  
   
-    # Format inputs into all numerical values.
-    for i in range(len(data[0][0])):
-        # Check if the piece of data is a string. (\n values are also numbers too)
-        if "?" not in data[0][0][i] and ("\n" not in data[0][0][i] or check_for_letters(data[0][0][i])):
-            # check each row and find possible values
-            possible_values = []
-            for row in range(len(data)):
-                # Ignore question marks when making the list
-                if data[row][0][i] != "?" and data[row][0][i] not in possible_values:
-                    # print("appending ",data[row][0][i])
-                    # Give string a numerical value (its index in the list).
-                    possible_values.append(data[row][0][i])
-            
-            #Stored values for later c;
-            CONVERSION_DICTONARY_INPUTS.append((i,possible_values))
-            # Format values in which new row values are index numbers
-            for row in range(len(data)):
-                data[row][0][i] = possible_values.index(data[row][0][i]) if data[row][0][i] != "?" else possible_values.index(random.choice(possible_values)) # look at placement.
-        # # check if the 
-        # if data[0][0][i].isnumeric() or data[0][0][i].isdecimal():
-          
-    
-    # Format outputs
-    for i in range(len(data[0][1])):
-        #Check if the piece of data is a string. (\n values are also numbers too)
-        if "?" not in str(data[0][0][i]) and ("\n" not in data[0][1][i] or check_for_letters(data[0][1][i])):
-            # check each row and find possible values
-            possible_values = []
-            for row in range(len(data)):
-                if data[row][1][i] not in possible_values:
-                    possible_values.append(data[row][1][i])
-            
-            #Stored values for later c;
-            CONVERSION_DICTONARY_OUTPUTS.append((i,possible_values))
-
-            # Format values in which new row values are index numbers
-            for row in range(len(data)):
-                data[row][1][i] = possible_values.index(data[row][1][i])
-    
-    new_data = copy.deepcopy(data)
-
-    #Stepus 2 
-    # Convert everything to a float
-    for row in range(len(data)):
-        for outcome in range(len(new_data[row])):
-            for col in range(len(new_data[row][outcome])):
-                # print(data[row][outcome][col])
-                # Handle "?"
-                # If there happens to be a questionmark in the data, just use the median.
-                if str(new_data[row][outcome][col]) in "?\n":
-                    compare_list = []
-                    for x in range(len(new_data)):
-                        compare_list.append(float(new_data[x][outcome][col] if str(new_data[x][outcome][col]) not in "?\n" else 0))
-                    # print(compare_list)
-                    new_data[row][outcome][col] = statistics.median(compare_list)
+    # Format all values into numerical values (at the end it will be a decimal number).
+    for outcome in range(len(data[0])): # 2
+        for col in range(len(data[0][outcome])): # for each column
+            # Check 1
+            # Check if the piece of data is a string. (\n values are also numbers too)
+            if "?" not in data[0][outcome][col] and ("\n" not in data[0][outcome][col] or check_for_letters(data[0][outcome][col])):
+                # check each row and find possible values
+                possible_values = []
+                for this_row in range(len(data)):
+                    # Ignore question marks when making the list
+                    if data[this_row][outcome][col] != "?" and data[this_row][outcome][col] not in possible_values:
+                        # print("appending ",data[this_row][0][i])
+                        # Give string a numerical value (its index in the list).
+                        possible_values.append(data[this_row][outcome][col])
+                
+                #Stored values for later c;
+                if outcome == 0:
+                    CONVERSION_DICTONARY_INPUTS.append((col,possible_values))
                 else:
-                    # if str(new_data[row][outcome][col]) in ["two","four"]:
-                        # print("ROw",row,"Col",col)
-                        # print(new_data[row][outcome][col])
-                    new_data[row][outcome][col] = float(new_data[row][outcome][col]) 
-    return new_data
+                    CONVERSION_DICTONARY_OUTPUTS.append((col,possible_values))
+                # Format values in which new row values are index numbers
+                for this_row in range(len(data)):
+                    data[this_row][outcome][col] = float(possible_values.index(data[this_row][outcome][col]) if data[this_row][outcome][col] != "?" else possible_values.index(random.choice(possible_values))) # look at placement.
+            
+            # Check 2 format it into a decimal value.
+            else:
+                # go through the rows in that column, tracking the range of values.
+
+                # HEHEHE
+                # basically this is an if-else system for a variable.
+                least = data[0][outcome][col] if type(data[0][outcome][col]) == float or (data[0][outcome][col].isnumeric() or data[0][outcome][col].isdecimal()) else data[3][outcome][col]
+
+                greatest = data[0][outcome][col] if type(data[0][outcome][col]) == float or (data[0][outcome][col].isnumeric() or data[0][outcome][col].isdecimal()) else data[3][0][col]
+                
+                for row in range(len(data)):
+                    # If there happens to be a question mark in the non-string data, just replace it with the median!
+                    # (Yes this is inaccurate but oh well.)
+                    # Yet this is useful as training data...
+                    if str(data[row][outcome][col]) in "?\n":
+                        compare_list = []
+                        # Get possible values.
+                        # Btw, if else branches and for loops don't work well in one line.
+                        # (pain)
+                        for x in range(len(data)):
+                            compare_list.append(float(data[x][outcome][col] if str(data[x][outcome][col]) not in "?\n" else 0))
+
+                        data[row][outcome][col] = float(statistics.median(compare_list))
+                    else:
+                        #finally
+                        data[row][outcome][col] = float(data[row][outcome][col]) 
+                        
+                        print(type(data[row][outcome][col]))
+                        # For tracking purposes for numbers
+                        if data[row][outcome][col] < float(least):
+                            least = data[row][outcome][col]
+                        elif data[row][outcome][col] > float(greatest):
+                            greatest = data[row][outcome][col]
+                
+                # Conversion purposes c;
+                if outcome == 0:
+                    CONVERSION_DICTONARY_INPUTS.append((col,["N", least, greatest]))
+                else:
+                    CONVERSION_DICTONARY_OUTPUTS.append((col,["N", least, greatest]))
+    return data
 
 def parse_line(line: str, inputs: List[int], outputs: List[int]) -> Tuple[List[float], List[float]]:
     """Splits line of CSV into inputs and output (transormfing output as appropriate)
@@ -106,8 +115,6 @@ def parse_line(line: str, inputs: List[int], outputs: List[int]) -> Tuple[List[f
         tuple of input list and output list
     """
     tokens = line.split(",")
-    # print(tokens)
-    
     
     # Make inputs based on parameters
     inpt = []
@@ -132,35 +139,21 @@ def normalize(data: List[Tuple[List[float], List[float]]]):
         normalized data where input features are mapped to 0-1 range (output already
         mapped in parse_line)
     """
-    # inputs
-    leasts = len(data[0][0]) * [100.0]
-    mosts = len(data[0][0]) * [0.0]
+    # for each separated piece of data
+    for outcome in range(len(data[0])): # 2
+        leasts = len(data[0][outcome]) * [100.0]
+        mosts = len(data[0][outcome]) * [0.0]
 
-    for i in range(len(data)):
-        for j in range(len(data[i][0])):
-            if data[i][0][j] < leasts[j]:
-                leasts[j] = data[i][0][j]
-            if data[i][0][j] > mosts[j]:
-                mosts[j] = data[i][0][j]
+        for i in range(len(data)):
+            for j in range(len(data[i][0])):
+                if data[i][outcome][j] < leasts[j]:
+                    leasts[j] = data[i][outcome][j]
+                if data[i][outcome][j] > mosts[j]:
+                    mosts[j] = data[i][outcome][j]
 
-    for i in range(len(data)):
-        for j in range(len(data[i][0])):
-            data[i][0][j] = (data[i][0][j] - leasts[j]) / (mosts[j] - leasts[j])
-
-    # outputs
-    leasts = len(data[0][1]) * [100.0]
-    mosts = len(data[0][1]) * [0.0]
-
-    for i in range(len(data)):
-        for j in range(len(data[i][1])):
-            if data[i][1][j] < leasts[j]:
-                leasts[j] = data[i][0][j]
-            if data[i][1][j] > mosts[j]:
-                mosts[j] = data[i][1][j]
-
-    for i in range(len(data)):
-        for j in range(len(data[i][1])):
-            data[i][1][j] = (data[i][1][j] - leasts[j]) / (mosts[j] - leasts[j])
+        for i in range(len(data)):
+            for j in range(len(data[i][outcome])):
+                data[i][outcome][j] = (data[i][outcome][j] - leasts[j]) / (mosts[j] - leasts[j])
     
     return data
 
@@ -184,9 +177,11 @@ if __name__ == "__main__":
 
     # print(training_data)
     print(CONVERSION_DICTONARY_INPUTS)
-    td = normalize(training_data)
-    print(td)
-    # exit()
+
+    print(CONVERSION_DICTONARY_OUTPUTS)
+    # td = normalize(training_data)
+    # print(td)
+    exit()
 
     nn = NeuralNet(6, 3, 1)
     nn.train(td) # , iters=100_000, print_interval=1000, learning_rate=0.1)
