@@ -26,6 +26,9 @@ def reformat_data(data: List[Tuple[List[float], List[float]]]) -> Tuple[List[flo
     Process each line, first looking for strings to put as numbers and then converting every value to a float
 
     Later on, track columns in terms of names to convert the strings to names
+
+    To be optimized.
+
     """
     #Step 1 (for both inputs and Outputs)
     # Find value in which strings exist and replace it with a actual number value
