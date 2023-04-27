@@ -11,7 +11,9 @@ CONVERSION_DICTONARY_INPUTS = []
 
 CONVERSION_DICTONARY_OUTPUTS = []
 
-NUMERICAL_VALUE_STRING = "Dwis swis wa wumbwer"
+WRITEN_TO_CONVERSION = False
+
+NUMERICAL_VALUE_STRING = "schwumumbwer"
 
 def hyphen_check(string):
     """
@@ -31,12 +33,15 @@ def reformat_data(data: List[Tuple[List[float], List[float]]]) -> Tuple[List[flo
     """
     # Check 1 Synopsis
     # Find value in which strings exist and replace it with a actual number value
-    # Record the possible string values in the column in which strings exist
-    # Give the data index based on the list with the recorded string values  
+    # Record the possible string values in the column in which strings exist; skip ?
+    # If there is a ?, give it a random string value
+    # Give the data index based on the list with the recorded string values 
+    # Turn that index into a float!
 
     # Check 2 Synopsis []
     # Record the least and greatest values in the column in which strings exist 
-    # Give the data index based on the list with the recorded string values  
+    # Give ? a median value (or a educated random number)
+    # Convert the thing to a float!
   
     # Format all values into numerical values (at the end it will be a decimal number).
     for outcome in range(len(data[0])): # 2
@@ -46,19 +51,20 @@ def reformat_data(data: List[Tuple[List[float], List[float]]]) -> Tuple[List[flo
             # 1) no question mark 2) is not a number.
             if "?" not in data[0][outcome][col] and (data[0][outcome][col].isalpha() or hyphen_check(data[0][outcome][col])):
                 # check each row and find possible values
-                possible_values = []
-                for this_row in range(len(data)):
-                    # Ignore question marks when making the list
-                    if data[this_row][outcome][col] != "?" and data[this_row][outcome][col] not in possible_values:
-                        # print("appending ",data[this_row][0][i])
-                        # Give string a numerical value (its index in the list).
-                        possible_values.append(data[this_row][outcome][col])
-                
-                #Stored values for later c;
-                if outcome == 0:
-                    CONVERSION_DICTONARY_INPUTS.append((col,possible_values))
-                else:
-                    CONVERSION_DICTONARY_OUTPUTS.append((col,possible_values))
+                if not WRITEN_TO_CONVERSION:
+                    possible_values = []
+                    for this_row in range(len(data)):
+                        # Ignore question marks when making the list
+                        if data[this_row][outcome][col] != "?" and data[this_row][outcome][col] not in possible_values:
+                            # print("appending ",data[this_row][0][i])
+                            # Give string a numerical value (its index in the list).
+                            possible_values.append(data[this_row][outcome][col])
+                    
+                    #Stored values for later c;
+                    if outcome == 0:
+                        CONVERSION_DICTONARY_INPUTS.append((col,possible_values))
+                    else:
+                        CONVERSION_DICTONARY_OUTPUTS.append((col,possible_values))
                 # Format values in which new row values are index numbers
                 for this_row in range(len(data)):
                     data[this_row][outcome][col] = float(possible_values.index(data[this_row][outcome][col]) if data[this_row][outcome][col] != "?" else possible_values.index(random.choice(possible_values))) # look at placement.
@@ -93,15 +99,16 @@ def reformat_data(data: List[Tuple[List[float], List[float]]]) -> Tuple[List[flo
                         # print(type(data[row][outcome][col]))
                         # For tracking purposes for numbers
                         if data[row][outcome][col] < float(least):
-                            least = data[row][outcome][col]
+                            least = float(data[row][outcome][col])
                         elif data[row][outcome][col] > float(greatest):
-                            greatest = data[row][outcome][col]
+                            greatest = float(data[row][outcome][col])
                 
                 # Conversion purposes c;
-                if outcome == 0:
-                    CONVERSION_DICTONARY_INPUTS.append((col,[NUMERICAL_VALUE_STRING, least, greatest]))
-                else:
-                    CONVERSION_DICTONARY_OUTPUTS.append((col,[NUMERICAL_VALUE_STRING, least, greatest]))
+                if not WRITEN_TO_CONVERSION:
+                    if outcome == 0:
+                        CONVERSION_DICTONARY_INPUTS.append((col,[NUMERICAL_VALUE_STRING, least, greatest]))
+                    else:
+                        CONVERSION_DICTONARY_OUTPUTS.append((col,[NUMERICAL_VALUE_STRING, least, greatest]))
     return data
 
 def parse_line(line: str, inputs: List[int], outputs: List[int]) -> Tuple[List[float], List[float]]:
@@ -128,7 +135,6 @@ def parse_line(line: str, inputs: List[int], outputs: List[int]) -> Tuple[List[f
 
     return (inpt, outpt)
 
-
 # Imported from neural_net data
 def normalize(data: List[Tuple[List[float], List[float]]]):
     """Makes the data range for each input feature from 0 to 1
@@ -139,8 +145,16 @@ def normalize(data: List[Tuple[List[float], List[float]]]):
     Returns:
         normalized data where input features are mapped to 0-1 range (output already
         mapped in parse_line)
+
+        [(0, ['schwumumbwer', -2.0, '3']),
+
+
+    Synopsis:
+      1. Go through each outcome
+      2. Go through each column for that outcome,
+      3. Turn that value into a usable val.
+        a. 
     """
-    # for each separated piece of data
     for outcome in range(len(data[0])): # 2
         leasts = len(data[0][outcome]) * [100.0]
         mosts = len(data[0][outcome]) * [0.0]
@@ -157,48 +171,97 @@ def normalize(data: List[Tuple[List[float], List[float]]]):
         for i in range(len(data)):
             for j in range(len(data[i][outcome])):
                 data[i][outcome][j] = (data[i][outcome][j] - leasts[j]) / (mosts[j] - leasts[j])
+                # print(leasts[j])
     
+    return data
+    
+def normalize_exp(data: List[Tuple[List[float], List[float]]]):
+    # for each separated piece of data
+    for outcome in range(len(data[0])): # 2  
+        #Depending on the side of the data we are converting, we use two different lists
+        if outcome == 0:
+            for col in range(len(data[0][outcome])):
+                if CONVERSION_DICTONARY_INPUTS[col][1][0] == NUMERICAL_VALUE_STRING:
+                    for row in range(len(data)):
+                        # data[i][outcome][j] = (data[i][outcome][j] - leasts[j]) / (mosts[j] - leasts[j])
+                        # print(type(data[row][outcome][col]))
+                        # print(CONVERSION_DICTONARY_INPUTS[col][1][2])
+                        data[row][outcome][col] = (data[row][outcome][col] - float(CONVERSION_DICTONARY_INPUTS[col][1][1])) / (float(CONVERSION_DICTONARY_INPUTS[col][1][2]) - float(CONVERSION_DICTONARY_INPUTS[col][1][1]))
+                    
+        if outcome == 1:
+            for col in range(len(data[0][outcome])):
+                if CONVERSION_DICTONARY_OUTPUTS[col][1][0] == NUMERICAL_VALUE_STRING:
+                    for row in range(len(data)):
+                        # data[i][outcome][j] = (data[i][outcome][j] - leasts[j]) / (mosts[j] - leasts[j])
+                        data[row][outcome][col] = (data[row][outcome][col] - float(CONVERSION_DICTONARY_OUTPUTS[col][1][1])) / (float(CONVERSION_DICTONARY_OUTPUTS[col][1][2]) - float(CONVERSION_DICTONARY_OUTPUTS[col][1][1]))
     return data
 
 #Denormalize C;
 def denormalize(data: List[Tuple[List[float], List[float]]]):
-  """Thought normalizing was bad?
-  It actually isn't
-
-  In normalize, we just subtract the least value and then divide it by the range
-
-  For this, we just do the reverse!
-  """
-  pass
+    """Thought normalizing was bad?
+    It actually isn't
+  
+    In normalize, we just subtract the least value and then divide it by the range
+  
+    For this, we just do the reverse!
+    """
+    # for outcome in range(len(data[0])): # 2  
+    #     #Depending on the side of the data we are converting, we use two different lists
+    #     if outcome == 0:
+    #         for col in range(len(data[0][outcome])):
+    #             if CONVERSION_DICTONARY_INPUTS[col][1][0] == NUMERICAL_VALUE_STRING:
+    #                 for row in range(len(data)):
+    #                     # data[i][outcome][j] = (data[i][outcome][j] - leasts[j]) / (mosts[j] - leasts[j])
+    #                     # print(type(data[row][outcome][col]))
+    #                     # print(CONVERSION_DICTONARY_INPUTS[col][1][2])
+    #                     data[row][outcome][col] = (data[row][outcome][col] - float(CONVERSION_DICTONARY_INPUTS[col][1][1])) / (float(CONVERSION_DICTONARY_INPUTS[col][1][2]) - float(CONVERSION_DICTONARY_INPUTS[col][1][1]))
+                    
+    #     if outcome == 1:
+    #         for col in range(len(data[0][outcome])):
+    #             if CONVERSION_DICTONARY_OUTPUTS[col][1][0] == NUMERICAL_VALUE_STRING:
+    #                 for row in range(len(data)):
+    #                     # data[i][outcome][j] = (data[i][outcome][j] - leasts[j]) / (mosts[j] - leasts[j])
+    #                     data[row][outcome][col] = (data[row][outcome][col] - float(CONVERSION_DICTONARY_OUTPUTS[col][1][1])) / (float(CONVERSION_DICTONARY_OUTPUTS[col][1][2]) - float(CONVERSION_DICTONARY_OUTPUTS[col][1][1]))
+    # return data
+        
+    return data
 
 def run_neural_net(inputs: List, outputs: List, hidden_nodes: int):
     with open(DATA_FILE, "r") as f:
         training_data = reformat_data([parse_line(line,inputs,outputs) for line in f.readlines() if len(line) > 4])
-
-    print(training_data)
-    print(CONVERSION_DICTONARY_INPUTS)
+    
+    WRITEN_TO_CONVERSION == True
+    # print(training_data)
+    # print(CONVERSION_DICTONARY_INPUTS)
     td = normalize(training_data)
-    print(td)
+    # print(td)
 
     nn = NeuralNet(len(inputs), hidden_nodes, len(outputs))
     nn.train(td) # , iters=100_000, print_interval=1000, learning_rate=0.1)
 
     #Do Test case stuff here c;
+    
 
 if __name__ == "__main__":
-    with open(DATA_FILE, "r") as f:
-        training_data = reformat_data([parse_line(line,[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],[25]) for line in f.readlines() if len(line) > 4])
+    run_neural_net([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],[25],3)
+    # CONVERSION_DICTONARY_INPUTS.clear()
+    # with open(DATA_FILE, "r") as f:
+    #     training_data = reformat_data([parse_line(line,[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],[25]) for line in f.readlines() if len(line) > 4])
 
-    # print(training_data)
-    print(CONVERSION_DICTONARY_INPUTS)
+    
+    # # print(training_data)
+    # print(CONVERSION_DICTONARY_INPUTS)
+    # # print(CONVERSION_DICTONARY_OUTPUTS)
+    # # print(CONVERSION_DICTONARY_OUTPUTS[0][1][1])
+    # # td = normalize_legacy(training_data)
+    # # print(td)
+    # # input("Are you ready?")
+    # td_w = normalize(training_data)
+    # print(td_w)
+    # exit()
 
-    print(CONVERSION_DICTONARY_OUTPUTS)
-    # td = normalize(training_data)
-    # print(td)
-    exit()
+    # nn = NeuralNet(6, 3, 1)
+    # nn.train(td) # , iters=100_000, print_interval=1000, learning_rate=0.1)
 
-    nn = NeuralNet(6, 3, 1)
-    nn.train(td) # , iters=100_000, print_interval=1000, learning_rate=0.1)
-
-    for i in nn.test_with_expected(td):
-        print(f"desired: {i[1]}, actual: {i[2]}")
+    # for i in nn.test_with_expected(td):
+    #     print(f"desired: {i[1]}, actual: {i[2]}")
