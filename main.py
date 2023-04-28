@@ -273,7 +273,7 @@ def run_neural_net(inputs: List, outputs: List, hidden_nodes: int, test_case_fil
     """
     Runs the neural net program.
 
-    ~!~ Current issue: output is the same for each test case ~!~
+    ~!~ Just puts some values, and get something! ~!~
     """
     with open(DATA_FILE, "r") as f:
         training_data = reformat_data([parse_line(line,inputs,outputs) for line in f.readlines() if len(line) > 4])
@@ -291,9 +291,10 @@ def run_neural_net(inputs: List, outputs: List, hidden_nodes: int, test_case_fil
     #Do Test case stuff here c;
     with open(test_case_file_path, "r") as f:
         test_cases = reformat_data([parse_line(line,inputs,outputs) for line in f.readlines() if len(line) > 4])
-    for test_case in test_cases:
-        print(denormalize_output(nn.evaluate(test_case[0])))
+    # for test_case in test_cases:
+    #     print(denormalize_output(nn.evaluate(test_case[0])))
+    for i in nn.test_with_expected(normalize_exp(test_cases)):
+        print(f"desired: {denormalize_output(i[1])}, actual: {denormalize_output(i[2])}")
     
-
 if __name__ == "__main__":
-    run_neural_net([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],[25],3,TEST_CASE_FILE)
+    run_neural_net([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],[19,20,25],3,TEST_CASE_FILE)
