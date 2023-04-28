@@ -249,7 +249,7 @@ def denormalize(data: List[Tuple[List[float], List[float]]]):
                     data[row][outcome][col] = data[row][outcome][col] * float(length)
     return data
 
-def denormalize_output(data: List[float], test_case_file_path: str):
+def denormalize_output(data: List[float]):
     """Thought normalizing was bad?
     It actually isn't
   
@@ -269,7 +269,12 @@ def denormalize_output(data: List[float], test_case_file_path: str):
             data[col] = data[col] * float(length)
     return data
 
-def run_neural_net(inputs: List, outputs: List, hidden_nodes: int, iters :int = 15_000):
+def run_neural_net(inputs: List, outputs: List, hidden_nodes: int, test_case_file_path: str, iters :int = 15_000):
+    """
+    Runs the neural net program.
+
+    ~!~ Current issue: output is the same for each test case ~!~
+    """
     with open(DATA_FILE, "r") as f:
         training_data = reformat_data([parse_line(line,inputs,outputs) for line in f.readlines() if len(line) > 4])
     
@@ -282,38 +287,13 @@ def run_neural_net(inputs: List, outputs: List, hidden_nodes: int, iters :int = 
 
     nn = NeuralNet(len(inputs), hidden_nodes, len(outputs))
     nn.train(td) # , iters=100_000, print_interval=1000, learning_rate=0.1)
-  
-    with open(TEST_CASE_FILE, "r") as f:
+    
+    #Do Test case stuff here c;
+    with open(test_case_file_path, "r") as f:
         test_cases = reformat_data([parse_line(line,inputs,outputs) for line in f.readlines() if len(line) > 4])
     for test_case in test_cases:
         print(denormalize_output(nn.evaluate(test_case[0])))
-    #Do Test case stuff here c;
-
     
 
 if __name__ == "__main__":
-    run_neural_net([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],[25],3)
-
-    
-    # # CONVERSION_DICTONARY_INPUTS.clear()
-    # with open(DATA_FILE, "r") as f:
-    #     training_data = reformat_data([parse_line(line,[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],[25]) for line in f.readlines() if len(line) > 4])
-
-    
-    # print(training_data)
-    # # print(CONVERSION_DICTONARY_INPUTS)
-    # # # print(CONVERSION_DICTONARY_OUTPUTS)
-    # # # print(CONVERSION_DICTONARY_OUTPUTS[0][1][1])
-    # td = normalize_exp(training_data)
-    # print(td)
-    # input("Are you ready?")
-    # print(denormalize(td))
-    # td_w = normalize(training_data)
-    # print(td_w)
-    # exit()
-
-    # nn = NeuralNet(6, 3, 1)
-    # nn.train(td) # , iters=100_000, print_interval=1000, learning_rate=0.1)
-
-    # for i in nn.test_with_expected(td):
-    #     print(f"desired: {i[1]}, actual: {i[2]}")
+    run_neural_net([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],[25],3,TEST_CASE_FILE)
