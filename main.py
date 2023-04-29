@@ -297,4 +297,27 @@ def run_neural_net(inputs: List, outputs: List, hidden_nodes: int, test_case_fil
         print(f"desired: {denormalize_output(i[1])}, actual: {denormalize_output(i[2])}")
     
 if __name__ == "__main__":
+    """
+    to do:
+    Make neural net for...
+    
+    > body-style and dimension of the car affects the rate in which cars lose their value.
+    > engine specs(size, fuel-sys, num-of-cylinders, engine-type) and gas milage of that car
+    > Make, Num-of-doors,body-style V. symboling and normalized-losses
+    
+    extra thingies (when you have time):
+    - Engine-location w/ Drive-wheels and curb-weight Vs gas milage
+    - Engine-location w/ Drive-wheel and curb-weight V symboling (insurance probability risk)
+    - Engine type V. MPG
+    - engine specs(all) and car price
+
+    P.S: 
+        - Put columns of data for inputs and outputs
+        - Put test cases into new file!
+    """
+    # This is how you run a neural net! Just put some inputs, some outputs, 
+    # the hidden nodes, and the location of the test cases into run_neural_net()
+    # and make a neural net!
+    # Arguably one of the best programs I've made.
     run_neural_net([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],[19,20,25],3,TEST_CASE_FILE)
+    
