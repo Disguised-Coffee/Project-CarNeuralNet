@@ -26,6 +26,8 @@ NEURAL_NETS_RAN = 0
 NUMERICAL_VALUE_STRING = "2656f9b579586eb2b7b2b341ee262d25"
 """Very important"""
 
+UNKNOWN_VALUE = "?"
+
 def reformat_data(data: List[Tuple[List[float], List[float]]]) -> Tuple[List[float], List[float]]:
     """Main course of the entire program.
 
@@ -69,13 +71,13 @@ def reformat_data(data: List[Tuple[List[float], List[float]]]) -> Tuple[List[flo
             # Check 1
             # Check if the piece of data is a string. (\n values are also numbers too)
             # 1) no question mark 2) is not a number.
-            if "?" not in data[0][outcome][col] and (data[0][outcome][col].isalpha() or hyphen_check(data[0][outcome][col])):
+            if UNKNOWN_VALUE not in data[0][outcome][col] and (data[0][outcome][col].isalpha() or hyphen_check(data[0][outcome][col])):
                 # check each row and find possible values
                 if not WRITEN_TO_CONVERSION:
                     possible_values = []
                     for this_row in range(len(data)):
                         # Ignore question marks when making the list
-                        if data[this_row][outcome][col] != "?" and data[this_row][outcome][col] not in possible_values:
+                        if data[this_row][outcome][col] != UNKNOWN_VALUE and data[this_row][outcome][col] not in possible_values:
                             # print("appending ",data[this_row][0][i])
                             # Give string a numerical value (its index in the list).
                             possible_values.append(data[this_row][outcome][col])
@@ -103,13 +105,13 @@ def reformat_data(data: List[Tuple[List[float], List[float]]]) -> Tuple[List[flo
                     # If there happens to be a question mark in the non-string data, just replace it with the median!
                     # (Yes this is inaccurate but oh well.)
                     # Yet this is useful as training data...
-                    if str(data[row][outcome][col]) in "?\n":
+                    if str(data[row][outcome][col]) in (UNKNOWN_VALUE + "\n"):
                         compare_list = []
                         # Get possible values.
                         # Btw, if else branches and for loops don't work well in one line.
                         # (pain)
                         for x in range(len(data)):
-                            compare_list.append(float(data[x][outcome][col] if str(data[x][outcome][col]) not in "?\n" else 0))
+                            compare_list.append(float(data[x][outcome][col] if str(data[x][outcome][col]) not in (UNKNOWN_VALUE + "\n") else 0))
 
                         data[row][outcome][col] = float(statistics.median(compare_list))
                     else:
@@ -319,7 +321,7 @@ def run_neural_net(inputs: List, outputs: List, hidden_nodes: int, test_cases: L
     
     # import global constant
     global NEURAL_NETS_RAN
-    
+
     print("*" * 65,"\n\t\tStarting neural net number", NEURAL_NETS_RAN,"\n" + "*" * 65)
     with open(DATA_FILE, "r") as f:
         training_data = reformat_data([parse_line(line,inputs,outputs) for line in f.readlines() if len(line) > 4])
@@ -362,19 +364,57 @@ if __name__ == "__main__":
     P.S: 
         - Put columns of data for inputs and outputs
         - Put test cases into new file!
+
+    Column values of testing net: 
+
+         Attribute:                Attribute Range:
+        ------------------        -----------------------------------------------
+    1. symboling:                -3, -2, -1, 0, 1, 2, 3.
+    2. normalized-losses:        continuous from 65 to 256.
+    3. make:                     alfa-romero, audi, bmw, chevrolet, dodge, honda,
+                                isuzu, jaguar, mazda, mercedes-benz, mercury,
+                                mitsubishi, nissan, peugot, plymouth, porsche,
+                                renault, saab, subaru, toyota, volkswagen, volvo
+    4. fuel-type:                diesel, gas.
+    5. aspiration:               std, turbo.
+    6. num-of-doors:             four, two.
+    7. body-style:               hardtop, wagon, sedan, hatchback, convertible.
+    8. drive-wheels:             4wd, fwd, rwd.
+    9. engine-location:          front, rear.
+    10. wheel-base:               continuous from 86.6 120.9.
+    11. length:                   continuous from 141.1 to 208.1.
+    12. width:                    continuous from 60.3 to 72.3.
+    13. height:                   continuous from 47.8 to 59.8.
+    14. curb-weight:              continuous from 1488 to 4066.
+    15. engine-type:              dohc, dohcv, l, ohc, ohcf, ohcv, rotor.
+    16. num-of-cylinders:         eight, five, four, six, three, twelve, two.
+    17. engine-size:              continuous from 61 to 326.
+    18. fuel-system:              1bbl, 2bbl, 4bbl, idi, mfi, mpfi, spdi, spfi.
+    19. bore:                     continuous from 2.54 to 3.94.
+    20. stroke:                   continuous from 2.07 to 4.17.
+    21. compression-ratio:        continuous from 7 to 23.
+    22. horsepower:               continuous from 48 to 288.
+    23. peak-rpm:                 continuous from 4150 to 6600.
+    24. city-mpg:                 continuous from 13 to 49.
+    25. highway-mpg:              continuous from 16 to 54.
+    26. price:                    continuous from 5118 to 45400.
     """
     # This is how you run a neural net! Just put some inputs, some outputs, 
     # the hidden nodes, and the location of the test cases into run_neural_net()
     # and make a neural net!
     # Arguably one of the best programs I've made.
 
-
+    # Main Neurals
     # > Make, Num-of-doors,body-style V. symboling and normalized-losses
-    run_neural_net([2,5,6],[0,1],10,[TEST_CASE_FILE], rounding_factor=None)
-
-    run_neural_net([0,1],[2,5,6],5,[TEST_CASE_FILE])
+    run_neural_net([2,5,6],[0,1],10,[TEST_CASE_FILE])
+    run_neural_net([0,1],[2,5,6],5,[TEST_CASE_FILE]) # Reversed
 
     # > engine specs(size, fuel-sys, num-of-cylinders, engine-type) and gas milage of that car
 
     #> body-style and dimension of the car affects the rate in which cars lose their value.
-    
+
+    #Extras: 
+    # - Engine-location w/ Drive-wheels and curb-weight Vs gas milage
+    # - Engine-location w/ Drive-wheel and curb-weight V symboling (insurance probability risk)
+    # - Engine type V. MPG
+    # - engine specs(all) and car price
