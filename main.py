@@ -356,9 +356,9 @@ def run_neural_net(inputs: List, outputs: List, hidden_nodes: int, test_cases: L
         print("\n ~ Evaluating desired test case at "+ test_case_file_path +" ~\n")
         #Do Test case stuff here c;
         with open(test_case_file_path, "r") as f:
-            test_cases = reformat_data([parse_line(line,inputs,outputs) for line in f.readlines() if len(line) > 4])
+            testing_data = reformat_data([parse_line(line,inputs,outputs) for line in f.readlines() if len(line) > 4])
         
-        for i in nn.test_with_expected(normalize_exp(test_cases)):
+        for i in nn.test_with_expected(normalize_exp(testing_data)):
             print(f"Desired: {denormalize_output(i[1])}, Actual: {round_each(denormalize_output(i[2]))}")
     NEURAL_NETS_RAN += 1
     print("\n \t\t~ end of neural net",NEURAL_NETS_RAN," ~ \n")
