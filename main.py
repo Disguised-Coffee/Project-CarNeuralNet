@@ -316,9 +316,17 @@ def run_neural_net(inputs: List, outputs: List, hidden_nodes: int, test_cases: L
             return values
         else:
             for i in range(len(values)):
-                values[i] = round(values[i], rounding_factor)
+                if type(values[i]) != str:
+                    values[i] = round(values[i], rounding_factor)
             return values
     
+    # REMOVE EVERYTHING FROM THE LIST
+    global CONVERSION_INPUTS
+    CONVERSION_INPUTS.clear()
+    global CONVERSION_OUTPUTS
+    CONVERSION_OUTPUTS.clear()
+
+
     # import global constant
     global NEURAL_NETS_RAN
 
@@ -327,10 +335,19 @@ def run_neural_net(inputs: List, outputs: List, hidden_nodes: int, test_cases: L
         training_data = reformat_data([parse_line(line,inputs,outputs) for line in f.readlines() if len(line) > 4])
     
     # print(training_data)
-    # print(CONVERSION_INPUTS)
+    print("\nINPUTS")
+
+    for x in CONVERSION_INPUTS:
+        print(x)
+    print("\nOUTPUTS")
+    
+    for x in CONVERSION_OUTPUTS:
+        print(x)
+    print("\n")
+
     td = normalize_exp(training_data)
     # print(td)
-    # print(CONVERSION_OUTPUTS)
+    
     print("~ running neural net ~ \n")
     nn = NeuralNet(len(inputs), hidden_nodes, len(outputs))
     nn.train(td, iters=iters, print_interval=print_inter, learning_rate=learning_rate)
