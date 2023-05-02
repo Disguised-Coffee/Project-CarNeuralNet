@@ -438,7 +438,7 @@ if __name__ == "__main__":
     # Main Neurals
     # > Make, Num-of-doors,body-style V. symboling and normalized-losses
     run_neural_net([2,5,6],[0,1],10,[TEST_CASE_FILE])
-    run_neural_net([0,1],[2,5,6],5,[TEST_CASE_FILE]) # Reversed
+    run_neural_net([0,1],[2,5,6],20,[TEST_CASE_FILE]) # Reversed
 
     # > engine specs(size, fuel-sys, num-of-cylinders, engine-type) and gas milage of that car
 
