@@ -10,6 +10,9 @@ DATA_FILE = "testing_data/imports-85.data"
 TEST_CASE_FILE = "testing_data/imports-small.data"
 """Testing file with example test cases"""
 
+
+# Later on, put outputs and inputs in same list.
+# For now, keep like this.
 CONVERSION_INPUTS : List = []
 """Where inputs exist to be converted"""
 
@@ -440,12 +443,13 @@ if __name__ == "__main__":
     run_neural_net([2,5,6],[0,1],10,[TEST_CASE_FILE])
     run_neural_net([0,1],[2,5,6],20,[TEST_CASE_FILE]) # Reversed
 
-    # > engine specs(size, fuel-sys, num-of-cylinders, engine-type) and gas milage of that car
+    # > engine specs(fuel-type, aspiration, engine-size, fuel-sys, num-of-cylinders, engine-type,bore,stroke,compression-ratio,horsepower, peak-rpm) and gas milage of that car
 
     #> body-style and dimension of the car affects the rate in which cars lose their value.
 
     #Extras: 
     # - Engine-location w/ Drive-wheels and curb-weight Vs gas milage
     # - Engine-location w/ Drive-wheel and curb-weight V symboling (insurance probability risk)
-    # - Engine type V. MPG
+    run_neural_net([],[0,1],10,[TEST_CASE_FILE])
+    # - engine specs V. horsepower
     # - engine specs(all) and car price
