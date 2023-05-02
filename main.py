@@ -10,10 +10,10 @@ DATA_FILE = "testing_data/imports-85.data"
 TEST_CASE_FILE = "testing_data/imports-small.data"
 """Testing file with example test cases"""
 
-CONVERSION_INPUTS = []
+CONVERSION_INPUTS : List = []
 """Where inputs exist to be converted"""
 
-CONVERSION_OUTPUTS = []
+CONVERSION_OUTPUTS : List = []
 """Where outputs exist to be converted"""
 
 WRITEN_TO_CONVERSION = False
@@ -64,7 +64,8 @@ def reformat_data(data: List[Tuple[List[float], List[float]]]) -> Tuple[List[flo
         # print(string)
         hypen_location = string.find("-")
         return string[hypen_location+1: hypen_location + 2].isalpha()
-  
+    
+    global WRITEN_TO_CONVERSION
     # Format all values into numerical values (at the end it will be a decimal number).
     for outcome in range(len(data[0])): # 2
         for col in range(len(data[0][outcome])): # for each column
@@ -89,7 +90,12 @@ def reformat_data(data: List[Tuple[List[float], List[float]]]) -> Tuple[List[flo
                         CONVERSION_OUTPUTS.append((col,possible_values))
                 # Format values in which new row values are index numbers
                 for this_row in range(len(data)):
-                    data[this_row][outcome][col] = float(possible_values.index(data[this_row][outcome][col]) if data[this_row][outcome][col] != "?" else possible_values.index(random.choice(possible_values))) # look at placement.
+                    # Use the Coversion list instead of the possible values.
+                    # data[this_row][outcome][col] = float(possible_values.index(data[this_row][outcome][col]) if data[this_row][outcome][col] != "?" else possible_values.index(random.choice(possible_values))) # look at placement.
+                    if outcome == 0:
+                        data[this_row][outcome][col] = float(CONVERSION_INPUTS[col][1].index(data[this_row][outcome][col]) if data[this_row][outcome][col] != "?" else round(random.random() * len(CONVERSION_INPUTS[col][1]))) # look at placement.
+                    else:
+                        data[this_row][outcome][col] = float(CONVERSION_OUTPUTS[col][1].index(data[this_row][outcome][col]) if data[this_row][outcome][col] != "?" else round(random.random() * len(CONVERSION_OUTPUTS[col][1]))) # look at placement.
             
             # Check 2 format it into a decimal value.
             else:
@@ -131,6 +137,7 @@ def reformat_data(data: List[Tuple[List[float], List[float]]]) -> Tuple[List[flo
                         CONVERSION_INPUTS.append((col,[NUMERICAL_VALUE_STRING, least, greatest]))
                     else:
                         CONVERSION_OUTPUTS.append((col,[NUMERICAL_VALUE_STRING, least, greatest]))
+    WRITEN_TO_CONVERSION = True
     return data
 
 def parse_line(line: str, inputs: List[int], outputs: List[int]) -> Tuple[List[float], List[float]]:
@@ -300,9 +307,17 @@ def denormalize_output(data: List[float]) -> List[float]:
 
             data[col] = (data[col]  * (most - least)) + least
         else:
-            length = len(CONVERSION_OUTPUTS[col][1]) -1
+            length = len(CONVERSION_OUTPUTS[col][1])
             data[col] = CONVERSION_OUTPUTS[col][1][int(round(data[col] * float(length)))]
     return data
+
+def reset_conversions():
+    global CONVERSION_INPUTS
+    CONVERSION_INPUTS.clear()
+    global CONVERSION_OUTPUTS
+    CONVERSION_OUTPUTS.clear()
+    global WRITEN_TO_CONVERSION
+    WRITEN_TO_CONVERSION = False
 
 def run_neural_net(inputs: List, outputs: List, hidden_nodes: int, test_cases: List = [TEST_CASE_FILE], rounding_factor: int = 3, iters :int = 1000, print_inter = 100, learning_rate = 0.5) -> None:
     """
@@ -320,15 +335,13 @@ def run_neural_net(inputs: List, outputs: List, hidden_nodes: int, test_cases: L
                     values[i] = round(values[i], rounding_factor)
             return values
     
-    # REMOVE EVERYTHING FROM THE LIST
-    global CONVERSION_INPUTS
-    CONVERSION_INPUTS.clear()
-    global CONVERSION_OUTPUTS
-    CONVERSION_OUTPUTS.clear()
+    # RESET EVERYTHING.
+    reset_conversions()
 
-
-    # import global constant
+    # import global constants
     global NEURAL_NETS_RAN
+    global CONVERSION_INPUTS
+    global CONVERSION_OUTPUTS
 
     print("*" * 65,"\n\t\tStarting neural net number", NEURAL_NETS_RAN,"\n" + "*" * 65)
     with open(DATA_FILE, "r") as f:
@@ -360,8 +373,9 @@ def run_neural_net(inputs: List, outputs: List, hidden_nodes: int, test_cases: L
         
         for i in nn.test_with_expected(normalize_exp(testing_data)):
             print(f"Desired: {denormalize_output(i[1])}, Actual: {round_each(denormalize_output(i[2]))}")
-    NEURAL_NETS_RAN += 1
+
     print("\n \t\t~ end of neural net",NEURAL_NETS_RAN," ~ \n")
+    NEURAL_NETS_RAN += 1
     
 if __name__ == "__main__":
     """
