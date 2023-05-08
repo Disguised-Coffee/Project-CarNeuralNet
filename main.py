@@ -10,7 +10,6 @@ DATA_FILE = "testing_data/imports-85.data"
 TEST_CASE_FILE = "testing_data/imports-small.data"
 """Testing file with example test cases"""
 
-
 # Later on, put outputs and inputs in same list.
 # For now, keep like this.
 CONVERSION_INPUTS : List = []
@@ -59,7 +58,7 @@ def reformat_data(data: List[Tuple[List[float], List[float]]]) -> Tuple[List[flo
     # Give ? a median value (or a educated random number)
     # Convert the thing to a float!
 
-    # Helper method (Yes, this is an annoying thing. Look up nested functions)
+    # Helper method (Yes, this is a a nested function. It's annoying to look at but helpful.)
     def hyphen_check(string) -> bool:
         """
         Returns true if it is part of a word (letter next to hyphen).
@@ -67,15 +66,23 @@ def reformat_data(data: List[Tuple[List[float], List[float]]]) -> Tuple[List[flo
         # print(string)
         hypen_location = string.find("-")
         return string[hypen_location+1: hypen_location + 2].isalpha()
+
+    def check_for_alphabeticals(string) -> bool:
+        """
+        Return if there is a letter in the string
+        """
+        for e in string:
+            if e.isalpha():
+                return True
+        return False
     
     global WRITEN_TO_CONVERSION
     # Format all values into numerical values (at the end it will be a decimal number).
     for outcome in range(len(data[0])): # 2
         for col in range(len(data[0][outcome])): # for each column
             # Check 1
-            # Check if the piece of data is a string. (\n values are also numbers too)
-            # 1) no question mark 2) is not a number.
-            if UNKNOWN_VALUE not in data[0][outcome][col] and (data[0][outcome][col].isalpha() or hyphen_check(data[0][outcome][col])):
+            # Check if the piece of data is a string. (\n values are also numbers too in our case)
+            if UNKNOWN_VALUE not in data[0][outcome][col] and (check_for_alphabeticals(data[0][outcome][col]) or hyphen_check(data[0][outcome][col])):
                 # check each row and find possible values
                 if not WRITEN_TO_CONVERSION:
                     possible_values = []
@@ -140,6 +147,7 @@ def reformat_data(data: List[Tuple[List[float], List[float]]]) -> Tuple[List[flo
                         CONVERSION_INPUTS.append((col,[NUMERICAL_VALUE_STRING, least, greatest]))
                     else:
                         CONVERSION_OUTPUTS.append((col,[NUMERICAL_VALUE_STRING, least, greatest]))
+    # Pretty much, if this is the first time the function is running, it will prevent the conversion list from being written to again.
     WRITEN_TO_CONVERSION = True
     return data
 
@@ -170,6 +178,7 @@ def parse_line(line: str, inputs: List[int], outputs: List[int]) -> Tuple[List[f
 # Imported from neural_net data
 def normalize(data: List[Tuple[List[float], List[float]]]) -> List[Tuple[List[float], List[float]]]:
     """Legacy version of the normalize function. 
+        We don't use this.
         (Makes the data range for each input feature from 0 to 1)
 
     Args:
@@ -180,7 +189,9 @@ def normalize(data: List[Tuple[List[float], List[float]]]) -> List[Tuple[List[fl
         mapped in parse_line)
 
     """
+    
     for outcome in range(len(data[0])): # 2
+        # Set Min and Max values to first value in column.
         leasts = len(data[0][outcome]) * [100.0]
         mosts = len(data[0][outcome]) * [0.0]
 
@@ -202,6 +213,7 @@ def normalize(data: List[Tuple[List[float], List[float]]]) -> List[Tuple[List[fl
     
 def normalize_exp(data: List[Tuple[List[float], List[float]]]) -> List[Tuple[List[float], List[float]]]:
     """Makes the data range for each input feature from 0 to 1 based on conversion inputs.
+        We use this normalize method instead.
 
     Args:
         data - list of (input, output) tuples
@@ -213,15 +225,15 @@ def normalize_exp(data: List[Tuple[List[float], List[float]]]) -> List[Tuple[Lis
     """
     # for each separated piece of data
     for outcome in range(len(data[0])): # 2  
-        #Depending on the side of the data we are converting, we use two different lists
+        # Depending on the side of the data we are converting, we use two different if sections
         if outcome == 0:
             for col in range(len(data[0][outcome])):
+                # If the column had numerical values
                 if CONVERSION_INPUTS[col][1][0] == NUMERICAL_VALUE_STRING:
                     for row in range(len(data)):
-                        # data[i][outcome][j] = (data[i][outcome][j] - leasts[j]) / (mosts[j] - leasts[j])
-                        # print(type(data[row][outcome][col]))
-                        # print(CONVERSION_INPUTS[col][1][2])
+                        # Normalize piece of data in that row.
                         data[row][outcome][col] = (data[row][outcome][col] - float(CONVERSION_INPUTS[col][1][1])) / (float(CONVERSION_INPUTS[col][1][2]) - float(CONVERSION_INPUTS[col][1][1]))
+                # If the column was made up of string values.
                 else:
                     length = len(CONVERSION_INPUTS[col][1])
                     for row in range(len(data)):
@@ -317,14 +329,25 @@ def denormalize_output(data: List[float]) -> List[float]:
 def reset_conversions():
     global CONVERSION_INPUTS
     CONVERSION_INPUTS.clear()
+  
     global CONVERSION_OUTPUTS
     CONVERSION_OUTPUTS.clear()
+  
     global WRITEN_TO_CONVERSION
     WRITEN_TO_CONVERSION = False
 
 def run_neural_net(inputs: List, outputs: List, hidden_nodes: int, test_cases: List = [TEST_CASE_FILE], rounding_factor: int = 3, iters :int = 1000, print_inter = 100, learning_rate = 0.5) -> None:
-    """
-    Runs the neural net program.
+    """Runs the neural net program.
+
+     Args:
+        inputs - list of column values to search to retain as inputs for neural net
+        inputs - list of column values to search to retain as outputs for neural net
+        hidden_node - int value of hidden nodes for neural net
+        test_cases - list of file names to analyze with neural net
+        rounding_factor - number of digits to round floats by
+        iters - number of iterations
+        print_inter - printing iterations
+        learning_rate - rate at which neural net learns by
 
     ~!~ Just puts some input values and desire outputs, and get something! ~!~
     """
@@ -438,18 +461,19 @@ if __name__ == "__main__":
     # and make a neural net!
     # Arguably one of the best programs I've made.
 
-    # Main Neurals
+    # Main neural nets
     # > Make, Num-of-doors,body-style V. symboling and normalized-losses
     run_neural_net([2,5,6],[0,1],10,[TEST_CASE_FILE])
-    run_neural_net([0,1],[2,5,6],20,[TEST_CASE_FILE]) # Reversed
+    #run_neural_net([0,1],[2,5,6],20,[TEST_CASE_FILE]) # Reversed
 
     # > engine specs(fuel-type, aspiration, engine-size, fuel-sys, num-of-cylinders, engine-type,bore,stroke,compression-ratio,horsepower, peak-rpm) and gas milage of that car
-
+    run_neural_net([3,4,16,15,14,17,18,19,20,21,22],[0,1],10,[TEST_CASE_FILE]) #17(fuel-sys is not converting?) and need 23 and 24?
+    
     #> body-style and dimension of the car affects the rate in which cars lose their value.
-
-    #Extras: 
+    run_neural_net([6,9,10,11,12],[0,1],10,[TEST_CASE_FILE])
+    # Extras (Not necessary to run): 
     # - Engine-location w/ Drive-wheels and curb-weight Vs gas milage
     # - Engine-location w/ Drive-wheel and curb-weight V symboling (insurance probability risk)
-    run_neural_net([],[0,1],10,[TEST_CASE_FILE])
+    
     # - engine specs V. horsepower
     # - engine specs(all) and car price
