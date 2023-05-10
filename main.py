@@ -397,8 +397,13 @@ def run_neural_net(inputs: List, outputs: List, hidden_nodes: int, test_cases: L
         with open(test_case_file_path, "r") as f:
             testing_data = reformat_data([parse_line(line,inputs,outputs) for line in f.readlines() if len(line) > 4])
         
-        for i in nn.test_with_expected(normalize_exp(testing_data)):
+        for i in nn.test_with_expected(normalize_exp(testing_data)): # < test_with_expected creates a list or tuple consisting of inputs, actual outputs, and neural net ran outputs
+            # ~ WE NEED INPUTS HERE!!! ~ [It would be nice to see what we're looking at]
+            # To be implemented.
+
+            # Here are the outputs.
             print(f"Desired: {denormalize_output(i[1])}, Actual: {round_each(denormalize_output(i[2]))}")
+            # print("")
 
     print("\n \t\t~ end of neural net",NEURAL_NETS_RAN," ~ \n")
     NEURAL_NETS_RAN += 1
@@ -467,10 +472,10 @@ if __name__ == "__main__":
     #run_neural_net([0,1],[2,5,6],20,[TEST_CASE_FILE]) # Reversed
 
     # > engine specs(fuel-type, aspiration, engine-size, fuel-sys, num-of-cylinders, engine-type,bore,stroke,compression-ratio,horsepower, peak-rpm) and gas milage of that car
-    run_neural_net([3,4,16,15,14,17,18,19,20,21,22],[0,1],10,[TEST_CASE_FILE]) #17(fuel-sys is not converting?) and need 23 and 24?
+    run_neural_net([3,4,16,15,14,17,18,19,20,21,22],[23,24],10,[TEST_CASE_FILE]) #17(fuel-sys is not converting?) and need 23 and 24?
     
     #> body-style and dimension of the car affects the rate in which cars lose their value.
-    run_neural_net([6,9,10,11,12],[0,1],10,[TEST_CASE_FILE])
+    run_neural_net([6,9,10,11,12],[1],10,[TEST_CASE_FILE])
     # Extras (Not necessary to run): 
     # - Engine-location w/ Drive-wheels and curb-weight Vs gas milage
     # - Engine-location w/ Drive-wheel and curb-weight V symboling (insurance probability risk)
